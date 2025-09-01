@@ -166,32 +166,32 @@ Output requirements:
 - Headings: Day 1:, Day 2:, ..., Day ${days}:
 - Under each Day, list meals as bullets starting with a dash (-)
 - Each bullet should include: meal name — key ingredients with PORTION SIZES (specify both pieces/units AND grams where applicable); ~[EXACT TARGET KCAL]kcal; ~[EXACT TARGET PROTEIN]g protein; quick prep (short) | Recipe: 1) step one, 2) step two, 3) step three
-- CRITICAL: After "| Recipe:" you MUST write actual cooking steps like "1) Boil water, 2) Add oats, 3) Cook 5min, 4) Add toppings"
+- CRITICAL: After &quot;| Recipe:&quot; you MUST write actual cooking steps like &quot;1) Boil water, 2) Add oats, 3) Cook 5min, 4) Add toppings&quot;
 - CRITICAL: Steps must be numbered (1), 2), 3), etc.)
 - CRITICAL: Each step should be a single action (no long combined sentences)
-- CRITICAL: Include time cues whenever cooking (e.g., "cook 6min", "boil 5min", "rest 5min")
+- CRITICAL: Include time cues whenever cooking (e.g., &quot;cook 6min&quot;, &quot;boil 5min&quot;, &quot;rest 5min&quot;)
 - CRITICAL: Avoid vague directions like "cook until done" - use specific times
 - CRITICAL: Do NOT write "| Recipe" alone - you MUST include the cooking steps after the colon
-- For portion sizes, use format like: "2 medium eggs (100g)", "1 cup cooked rice (185g)", "3 oz chicken breast (85g)", "1 medium apple (182g)", "1 tbsp olive oil (14g)", "1/2 cup diced tomatoes (90g)", "2 cloves garlic (6g)", "1/4 cup chopped onion (40g)", "1 tsp salt (6g)", "1/2 tsp black pepper (1g)", "1 cup spinach (30g)", "1/2 avocado (68g)"
+- For portion sizes, use format like: &quot;2 medium eggs (100g)&quot;, &quot;1 cup cooked rice (185g)&quot;, &quot;3 oz chicken breast (85g)&quot;, &quot;1 medium apple (182g)&quot;, &quot;1 tbsp olive oil (14g)&quot;, &quot;1/2 cup diced tomatoes (90g)&quot;, &quot;2 cloves garlic (6g)&quot;, &quot;1/4 cup chopped onion (40g)&quot;, &quot;1 tsp salt (6g)&quot;, &quot;1/2 tsp black pepper (1g)&quot;, &quot;1 cup spinach (30g)&quot;, &quot;1/2 avocado (68g)&quot;
 - CRITICAL: Always list imperial units first (cups, tbsp, tsp, oz, medium/large/small), then add grams in parentheses
 - CRITICAL: EVERY SINGLE ingredient must have a specific amount/measurement. Never list ingredients without amounts.
 - Include amounts for spices, oils, vegetables, proteins, grains, fruits - everything.
 - CRITICAL: EVERY meal must include a detailed recipe with step-by-step cooking instructions after the | Recipe: separator.
 - CRITICAL: Do NOT output just "| Recipe" - you MUST include the actual cooking instructions after the colon.
-- CRITICAL: WRONG: "| Recipe" - CORRECT: "| Recipe: 1) Boil water, 2) Add oats, 3) Cook 5min"
+- CRITICAL: WRONG: &quot;| Recipe&quot; - CORRECT: &quot;| Recipe: 1) Boil water, 2) Add oats, 3) Cook 5min&quot;
 - CRITICAL: Ensure each meal's kcal and protein match the distribution targets above.
 - CRITICAL: Use the exact calorie and protein targets from the distribution above. Do not use generic examples.
 - CRITICAL: The calorie and protein numbers you output MUST match the distribution targets exactly. Do not output lower numbers.
 - CRITICAL: If you output numbers like ~250kcal or ~200kcal instead of the target numbers, you are WRONG. Use the exact target numbers.
 - CRITICAL: Replace [EXACT TARGET KCAL] and [EXACT TARGET PROTEIN] with the actual numbers from MANDATORY MEAL TARGETS above.
-- CRITICAL: You MUST write cooking instructions after "| Recipe:" - never leave it empty or just "| Recipe"
+- CRITICAL: You MUST write cooking instructions after &quot;| Recipe:&quot; - never leave it empty or just &quot;| Recipe&quot;
 - EXAMPLES (using calculated targets for 3 meals):
-  * "Breakfast — 1 cup oats (80g), 1 cup blueberries (148g), 1 tbsp honey (21g), 1 cup almond milk (240ml); ~${Math.round(dailyCalories * 0.25)}kcal; ~${Math.round(dailyProtein * 0.2)}g protein; 5min prep | Recipe: 1) Heat almond milk in pot 3min, 2) Add oats and salt, 3) Cook 3min stirring, 4) Rest 2min, 5) Top with blueberries and honey"
-  * "Lunch — 3 oz chicken breast (85g), 2 cups mixed greens (60g), 1/4 cup cherry tomatoes (45g), 1 tbsp olive oil (14g); ~${Math.round(dailyCalories * 0.35)}kcal; ~${Math.round(dailyProtein * 0.35)}g protein; 10min prep | Recipe: 1) Season chicken with salt/pepper, 2) Heat oil in pan 1min, 3) Cook chicken 6min per side, 4) Rest chicken 5min, 5) Wash greens and slice tomatoes, 6) Combine salad ingredients, 7) Slice chicken over salad"
-  * "Dinner — 4 oz salmon (113g), 1 cup brown rice (185g), 1 cup broccoli (91g), 1 tbsp olive oil (14g); ~${Math.round(dailyCalories * 0.4)}kcal; ~${Math.round(dailyProtein * 0.45)}g protein; 15min prep | Recipe: 1) Rinse rice, 2) Boil rice 45min, 3) Season salmon, 4) Heat oil in pan 1min, 5) Cook salmon 4min per side, 6) Steam broccoli 5min, 7) Plate rice, salmon, and broccoli"
+      * &quot;Breakfast — 1 cup oats (80g), 1 cup blueberries (148g), 1 tbsp honey (21g), 1 cup almond milk (240ml); ~${Math.round(dailyCalories * 0.25)}kcal; ~${Math.round(dailyProtein * 0.2)}g protein; 5min prep | Recipe: 1) Heat almond milk in pot 3min, 2) Add oats and salt, 3) Cook 3min stirring, 4) Rest 2min, 5) Top with blueberries and honey&quot;
+      * &quot;Lunch — 3 oz chicken breast (85g), 2 cups mixed greens (60g), 1/4 cup cherry tomatoes (45g), 1 tbsp olive oil (14g); ~${Math.round(dailyCalories * 0.35)}kcal; ~${Math.round(dailyProtein * 0.35)}g protein; 10min prep | Recipe: 1) Season chicken with salt/pepper, 2) Heat oil in pan 1min, 3) Cook chicken 6min per side, 4) Rest chicken 5min, 5) Wash greens and slice tomatoes, 6) Combine salad ingredients, 7) Slice chicken over salad&quot;
+      * &quot;Dinner — 4 oz salmon (113g), 1 cup brown rice (185g), 1 cup broccoli (91g), 1 tbsp olive oil (14g); ~${Math.round(dailyCalories * 0.4)}kcal; ~${Math.round(dailyProtein * 0.45)}g protein; 15min prep | Recipe: 1) Rinse rice, 2) Boil rice 45min, 3) Season salmon, 4) Heat oil in pan 1min, 5) Cook salmon 4min per side, 6) Steam broccoli 5min, 7) Plate rice, salmon, and broccoli&quot;
 - FINAL WARNING: You MUST output the exact calorie and protein numbers from the MANDATORY MEAL TARGETS above. If you output different numbers, you are not following instructions correctly.
-- FINAL WARNING: You MUST include actual cooking instructions after "| Recipe:" - not just "| Recipe".
-- FINAL WARNING: You MUST write cooking instructions after "| Recipe:" - do not leave it empty.
+- FINAL WARNING: You MUST include actual cooking instructions after &quot;| Recipe:&quot; - not just &quot;| Recipe&quot;.
+- FINAL WARNING: You MUST write cooking instructions after &quot;| Recipe:&quot; - do not leave it empty.
 - After all days, add a section titled: Grocery List:, with consolidated items and total amounts for the whole plan
 - SYSTEM RULE: You are FORBIDDEN from outputting a flat grocery list. You MUST use categories.
 - CRITICAL: Structure the grocery list by grouping items into these exact categories:
@@ -221,7 +221,7 @@ Output requirements:
 - 
 - CRITICAL: Do NOT list items without categories. Every item MUST be under its proper category heading.
 - CRITICAL: Every grocery item MUST include the total amount needed for the ENTIRE meal plan (not per meal).
-- AMOUNT EXAMPLES: "Chicken breast: 2 lbs", "Eggs: 12 large", "Brown rice: 3 cups", "Broccoli: 2 heads"
+- AMOUNT EXAMPLES: &quot;Chicken breast: 2 lbs&quot;, &quot;Eggs: 12 large&quot;, &quot;Brown rice: 3 cups&quot;, &quot;Broccoli: 2 heads&quot;
 - Do NOT list items without amounts. Every item must specify quantity (lbs, cups, pieces, etc.)
 - FINAL WARNING: If you output a flat grocery list without categories, you are FAILING the task.
 - Keep lines short and skimmable; no emojis, no hashtags`;

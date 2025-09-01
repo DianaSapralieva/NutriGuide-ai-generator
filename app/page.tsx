@@ -63,7 +63,7 @@ export default function Home() {
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
           }}>
-            Craft meal plans you'll love
+            Craft meal plans you&apos;ll love
           </h1>
           <p style={{
             fontSize: '1.25rem',
@@ -156,7 +156,7 @@ export default function Home() {
                 transition: 'all 0.3s ease'
               }}
             >
-              Let's Start →
+              Let&apos;s Start →
             </button>
           </Link>
         </div>

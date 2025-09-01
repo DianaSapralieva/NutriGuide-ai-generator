@@ -459,7 +459,7 @@ function openPrintWindow(title: string, htmlContent: string) {
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>${title}</title>
+          <title>${title}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; color: #1f2f3a; }
     h1 { font-size: 22px; margin: 0 0 12px; }
@@ -474,8 +474,8 @@ function openPrintWindow(title: string, htmlContent: string) {
 </head>
 <body>
   <div class="wrap">
-    <h1>${title}</h1>
-    <div class="summary">${new Date().toLocaleDateString()} • ${location.origin}</div>
+            <h1>${title}</h1>
+        <div class="summary">${new Date().toLocaleDateString()} • ${location.origin}</div>
     ${htmlContent}
   </div>
   <script>window.onload = () => { window.print(); };</script>
