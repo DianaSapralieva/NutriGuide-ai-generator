@@ -36,3 +36,6 @@ next-env.d.ts
 .env.local.old*
 .env.local.backup*
 .env.local.old2
+.env*
+*.backup
+*.old*
