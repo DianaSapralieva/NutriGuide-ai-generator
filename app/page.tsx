@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -25,9 +26,11 @@ export default function Home() {
             display: 'flex',
             justifyContent: 'center'
           }}>
-            <img 
+            <Image 
               src="/favicon.png" 
               alt="NutriGuide Icon" 
+              width={80}
+              height={80}
               style={{
                 width: '80px',
                 height: '80px',
@@ -783,7 +786,7 @@ export default function Home() {
             opacity: '0.9',
             lineHeight: '1.6'
           }}>
-            Join thousands of people who never wonder "what should I cook tonight?" again
+            Join thousands of people who never wonder &quot;what should I cook tonight?&quot; again
           </p>
           <Link href="/meal-planner">
             <button 

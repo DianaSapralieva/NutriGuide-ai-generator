@@ -4,6 +4,7 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import { useChat } from 'ai/react';
 import MealPlan from '../components/MealPlan';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Define types for quiz steps
 type QuizStepOption = {
@@ -908,9 +909,11 @@ Ready to get cooking? Let's make some magic happen! 🎉`;
                     maxWidth: '500px',
                     margin: '0 auto'
                   }}>
-                    <img
+                    <Image
                       src={generatedImage}
                       alt="Generated recipe image"
+                      width={500}
+                      height={300}
                       style={{
                         width: '100%',
                         height: 'auto',

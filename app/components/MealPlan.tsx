@@ -40,7 +40,7 @@ function parseRecipe(plan: string): RecipeData {
   const prepTime = prepTimeMatch ? prepTimeMatch[1] : '';
 
   // Extract recipe instructions (after | Recipe:)
-  const instructionsMatch = plan.match(/\|\s*Recipe:?\s*(.+)/s);
+  const instructionsMatch = plan.match(/\|\s*Recipe:?\s*([\s\S]+)/);
   const instructions = instructionsMatch ? instructionsMatch[1].trim() : '';
 
   return {
@@ -91,7 +91,7 @@ const MealPlan: React.FC<Props> = ({ plan, summary }) => {
           opacity: '0.9',
           fontWeight: '500'
         }}>
-          🍽️ Chef's Special Recipe
+          🍽️ Chef&apos;s Special Recipe
         </div>
         {summary && (
           <div style={{
@@ -236,21 +236,21 @@ const MealPlan: React.FC<Props> = ({ plan, summary }) => {
             }}>
               <span>⏰</span>
               <span>Prep Time: {recipe.prepTime}</span>
-            </div>
-          </div>
+                    </div>
+                      </div>
         )}
 
         {/* Ingredients Section */}
         <div style={{ marginBottom: '32px' }}>
-          <div style={{
+                      <div style={{
             color: '#374151',
             lineHeight: '1.8',
             fontSize: '1.1rem',
             whiteSpace: 'pre-wrap'
           }}>
             {recipe.ingredients || 'Ingredients not specified'}
-          </div>
-        </div>
+                      </div>
+                    </div>
 
         {/* Instructions Section */}
         {recipe.instructions && (
@@ -332,7 +332,7 @@ const MealPlan: React.FC<Props> = ({ plan, summary }) => {
               color: '#92400e',
               margin: '0'
             }}>
-              Chef's Tips
+              Chef&apos;s Tips
             </h4>
           </div>
           <div style={{
@@ -342,7 +342,7 @@ const MealPlan: React.FC<Props> = ({ plan, summary }) => {
           }}>
             • Prep all ingredients before starting for smooth cooking<br/>
             • Taste and adjust seasoning as you go<br/>
-            • Don't rush the cooking process - good food takes time<br/>
+            • Don&apos;t rush the cooking process - good food takes time<br/>
             • Store leftovers in airtight containers for up to 3 days
           </div>
         </div>
