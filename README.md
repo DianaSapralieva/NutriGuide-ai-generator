@@ -1,4 +1,4 @@
-NutriGuide dinner generator
+# NutriGuide dinner generator
 This app generates delicious recipes for you.
 
 This project is built using Nextjs. It utilizes the OpenAI GPT for chat completion, and Dall-E for image generation.
