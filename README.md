@@ -1,10 +1,7 @@
-# Codebender Tweet Generator
-
-This app generates engaging tweets for your brand.
+NutriGuide dinner generator
+This app generates delicious recipes for you.
 
 This project is built using Nextjs. It utilizes the OpenAI GPT for chat completion, and Dall-E for image generation.
-
-<img src="tweet-generator-demo.gif" alt="app demo" width=600>
 
 ## Getting Started
 
