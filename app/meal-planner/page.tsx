@@ -5,47 +5,188 @@ import { useChat } from 'ai/react';
 import MealPlan from '../components/MealPlan';
 import Link from 'next/link';
 
-const activityMultipliers: Record<string, number> = {
-  sedentary: 1.2,
-  light: 1.375,
-  moderate: 1.55,
-  active: 1.725,
-  very_active: 1.9,
+// Define types for quiz steps
+type QuizStepOption = {
+  value: string;
+  label: string;
+  icon: string;
+  description: string;
 };
 
-const goals: Record<string, number> = {
-  lose: -500,
-  maintain: 0,
-  gain: 300,
+type QuizStep = {
+  id: string;
+  title: string;
+  subtitle: string;
+  options?: QuizStepOption[];
+  multiSelect?: boolean;
+  type?: 'textarea';
+  placeholder?: string;
+  optional?: boolean;
+  min?: number;
+  max?: number;
+  unit?: string;
 };
 
-function calculateBmrMifflinStJeor(
-  sex: 'male' | 'female',
-  weightKg: number,
-  heightCm: number,
-  age: number
-): number {
-  const s = sex === 'male' ? 5 : -161;
-  return Math.round(10 * weightKg + 6.25 * heightCm - 5 * age + s);
-}
+// Quiz steps configuration for dinner planning
+const quizSteps: QuizStep[] = [
+  {
+    id: 'dietary',
+    title: 'Any dietary pattern?',
+    subtitle: 'This helps me suggest recipes that fit your lifestyle',
+    options: [
+      { value: 'none', label: 'No restrictions', icon: '🍽️', description: 'I eat everything' },
+      { value: 'vegetarian', label: 'Vegetarian', icon: '🥬', description: 'No meat, but dairy and eggs are fine' },
+      { value: 'vegan', label: 'Vegan', icon: '🌱', description: 'Plant-based only, no animal products' },
+      { value: 'pescatarian', label: 'Pescatarian', icon: '🐟', description: 'Fish and seafood, no other meat' },
+      { value: 'halal', label: 'Halal', icon: '☪️', description: 'Following Islamic dietary laws' },
+      { value: 'kosher', label: 'Kosher', icon: '✡️', description: 'Following Jewish dietary laws' }
+    ]
+  },
+  {
+    id: 'allergies',
+    title: 'Any allergies or intolerances?',
+    subtitle: 'I\'ll make sure to avoid these ingredients',
+    options: [
+      { value: 'none', label: 'None', icon: '✅', description: 'No allergies or intolerances' },
+      { value: 'peanuts', label: 'Peanuts', icon: '🥜', description: 'Avoid peanut products' },
+      { value: 'tree_nuts', label: 'Tree Nuts', icon: '🌰', description: 'Avoid almonds, walnuts, etc.' },
+      { value: 'dairy', label: 'Dairy', icon: '🥛', description: 'Avoid milk, cheese, yogurt' },
+      { value: 'eggs', label: 'Eggs', icon: '🥚', description: 'Avoid egg products' },
+      { value: 'soy', label: 'Soy', icon: '🫘', description: 'Avoid soy products' },
+      { value: 'gluten', label: 'Gluten', icon: '🌾', description: 'Avoid wheat, barley, rye' },
+      { value: 'shellfish', label: 'Shellfish', icon: '🦐', description: 'Avoid shrimp, crab, lobster' }
+    ],
+    multiSelect: true
+  },
+  {
+    id: 'dislikes',
+    title: 'Ingredients you dislike or want to avoid?',
+    subtitle: 'Tell me what you don\'t enjoy eating',
+    type: 'textarea',
+    placeholder: 'e.g., mushrooms, olives, cilantro, spicy food, bitter vegetables...',
+    optional: true
+  },
+  {
+    id: 'protein',
+    title: 'What proteins do you enjoy?',
+    subtitle: 'Choose all the protein sources you like',
+    options: [
+      { value: 'chicken', label: 'Chicken', icon: '🍗', description: 'Chicken breast, thighs, ground' },
+      { value: 'beef', label: 'Beef', icon: '🥩', description: 'Steak, ground beef, roast' },
+      { value: 'fish', label: 'Fish', icon: '🐟', description: 'Salmon, cod, tuna, tilapia' },
+      { value: 'tofu', label: 'Tofu/Tempeh', icon: '🧈', description: 'Plant-based protein options' },
+      { value: 'legumes', label: 'Legumes', icon: '🫘', description: 'Beans, lentils, chickpeas' },
+      { value: 'eggs', label: 'Eggs', icon: '🥚', description: 'Scrambled, fried, boiled' }
+    ],
+    multiSelect: true
+  },
+  {
+    id: 'cooking_time',
+    title: 'How much time do you have tonight?',
+    subtitle: 'I\'ll suggest recipes that fit your schedule',
+    options: [
+      { value: '10', label: '10 minutes', icon: '⚡', description: 'Super quick, minimal prep' },
+      { value: '20', label: '20 minutes', icon: '⏰', description: 'Quick and easy' },
+      { value: '30', label: '30 minutes', icon: '🕐', description: 'Moderate time investment' },
+      { value: '45', label: '45 minutes', icon: '🕐', description: 'Some time to cook' },
+      { value: '60', label: '60+ minutes', icon: '🍳', description: 'I have time to cook properly' }
+    ]
+  },
+  {
+    id: 'skill_level',
+    title: 'What\'s your cooking skill level?',
+    subtitle: 'I\'ll adjust recipe complexity accordingly',
+    options: [
+      { value: 'beginner', label: 'Beginner', icon: '🌱', description: 'New to cooking, need simple steps' },
+      { value: 'comfortable', label: 'Comfortable', icon: '👨‍🍳', description: 'I can follow recipes well' },
+      { value: 'advanced', label: 'Advanced', icon: '🔥', description: 'Experienced cook, can handle complex techniques' }
+    ]
+  },
+  {
+    id: 'kitchen_gear',
+    title: 'What cooking equipment do you have?',
+    subtitle: 'Choose all the equipment available to you',
+    options: [
+      { value: 'stovetop', label: 'Stovetop', icon: '🔥', description: 'Gas or electric burners' },
+      { value: 'oven', label: 'Oven', icon: '🔥', description: 'For baking and roasting' },
+      { value: 'microwave', label: 'Microwave', icon: '📱', description: 'Quick heating and cooking' },
+      { value: 'air_fryer', label: 'Air Fryer', icon: '🍟', description: 'For crispy cooking' },
+      { value: 'grill', label: 'Grill', icon: '🔥', description: 'Indoor or outdoor grilling' }
+    ],
+    multiSelect: true
+  },
+  {
+    id: 'cuisine',
+    title: 'What cuisine vibe are you feeling?',
+    subtitle: 'Choose your preferred flavor profile',
+    options: [
+      { value: 'no_preference', label: 'No preference', icon: '🌍', description: 'I\'m open to anything' },
+      { value: 'mediterranean', label: 'Mediterranean', icon: '🫒', description: 'Fresh, olive oil, herbs' },
+      { value: 'mexican', label: 'Mexican', icon: '🌮', description: 'Spicy, flavorful, colorful' },
+      { value: 'asian', label: 'Asian', icon: '🥢', description: 'Umami, soy sauce, ginger' },
+      { value: 'italian', label: 'Italian', icon: '🍝', description: 'Pasta, tomatoes, basil' },
+      { value: 'american_comfort', label: 'American Comfort', icon: '🍔', description: 'Classic, hearty, familiar' },
+      { value: 'indian', label: 'Indian', icon: '🍛', description: 'Spices, curry, aromatic' },
+      { value: 'middle_eastern', label: 'Middle Eastern', icon: '🥙', description: 'Hummus, falafel, tahini' }
+    ]
+  },
+  {
+    id: 'budget',
+    title: 'What\'s your budget per serving?',
+    subtitle: 'I\'ll suggest recipes that fit your budget',
+    options: [
+      { value: 'low', label: 'Low budget', icon: '💰', description: 'Affordable ingredients, under $5/serving' },
+      { value: 'medium', label: 'Medium budget', icon: '💰💰', description: 'Moderate cost, $5-10/serving' },
+      { value: 'high', label: 'High budget', icon: '💰💰💰', description: 'Premium ingredients, $10+/serving' }
+    ]
+  },
+  {
+    id: 'nutrition',
+    title: 'What\'s your nutrition priority?',
+    subtitle: 'I\'ll focus on what matters most to you',
+    options: [
+      { value: 'balanced', label: 'Balanced', icon: '⚖️', description: 'Good mix of all nutrients' },
+      { value: 'high_protein', label: 'High Protein', icon: '💪', description: 'Focus on protein content' },
+      { value: 'lower_carb', label: 'Lower Carb', icon: '🥗', description: 'Reduce carbohydrate intake' },
+      { value: 'lower_fat', label: 'Lower Fat', icon: '🥬', description: 'Reduce fat content' },
+      { value: 'calorie_light', label: 'Calorie Light', icon: '⚡', description: 'Lower calorie options' }
+    ]
+  },
+  {
+    id: 'servings',
+    title: 'How many people are you cooking for?',
+    subtitle: 'I\'ll adjust recipe quantities accordingly',
+    options: [
+      { value: '1', label: 'Just me', icon: '👤', description: 'Single serving' },
+      { value: '2', label: '2 people', icon: '👥', description: 'Couple or small family' },
+      { value: '3', label: '3 people', icon: '👥👤', description: 'Small family' },
+      { value: '4', label: '4 people', icon: '👥👥', description: 'Family of four' },
+      { value: '5', label: '5 people', icon: '👥👥👤', description: 'Larger family' },
+      { value: '6', label: '6+ people', icon: '👥👥👥', description: 'Big family or gathering' }
+    ]
+  },
+  {
+    id: 'pantry',
+    title: 'What pantry items do you already have?',
+    subtitle: 'This helps me avoid suggesting ingredients you need to buy',
+    type: 'textarea',
+    placeholder: 'e.g., rice, pasta, olive oil, salt, pepper, garlic, onions, canned tomatoes...',
+    optional: true
+  }
+];
 
 export default function MealPlannerPage() {
-  const [age, setAge] = useState<number>(28);
-  const [sex, setSex] = useState<'male' | 'female'>('male');
-  const [heightCm, setHeightCm] = useState<string>('178');
-  const [weightKg, setWeightKg] = useState<string>('80');
-  const [activity, setActivity] = useState<string>('moderate');
-  const [goal, setGoal] = useState<string>('maintain');
-  const [dietPrefs, setDietPrefs] = useState<string>('');
-  const [mealsPerDay, setMealsPerDay] = useState<number>(3);
-  const [days, setDays] = useState<number>(7);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [generatedPlan, setGeneratedPlan] = useState<string>('');
+  const [generatedImage, setGeneratedImage] = useState<string>('');
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
 
   const { append } = useChat({
     api: '/api/gpt',
-    onFinish: (message) => {
+    onFinish: async (message) => {
       console.log('Chat finished, message received:', message.content?.substring(0, 100) + '...');
       setError('');
       const cleaned = (message.content || '')
@@ -54,6 +195,19 @@ export default function MealPlannerPage() {
       setGeneratedPlan(cleaned);
       setLoading(false);
       console.log('Plan generated successfully');
+      console.log('Full generated plan:', cleaned);
+      
+      // Extract recipe name and cuisine for image generation
+      try {
+        const recipeMatch = cleaned.match(/^([^-]+)/);
+        if (recipeMatch) {
+          const recipeName = recipeMatch[1].trim();
+          const cuisine = answers.cuisine || 'international';
+          await generateImage(recipeName, cuisine);
+        }
+      } catch (error) {
+        console.error('Error generating image:', error);
+      }
     },
     onError: (e) => {
       console.error('Chat error:', e);
@@ -65,166 +219,147 @@ export default function MealPlannerPage() {
     },
   });
 
-  const heightCmNum = useMemo(() => Number(heightCm), [heightCm]);
-  const weightKgNum = useMemo(() => Number(weightKg), [weightKg]);
-
-  const caloriesAndProtein = useMemo(() => {
-    const bmr = calculateBmrMifflinStJeor(sex, weightKgNum, heightCmNum, age);
-    const tdee = Math.round(bmr * (activityMultipliers[activity] || 1.55));
-    const calorieTarget = Math.max(1200, tdee + (goals[goal] ?? 0));
-    
-    // Adjust protein based on goal
-    let proteinMultiplier = 1.8; // default for maintain
-    if (goal === 'lose') {
-      proteinMultiplier = 2.2; // Higher protein for fat loss to preserve muscle
-    } else if (goal === 'gain') {
-      proteinMultiplier = 2.0; // Higher protein for muscle building
+  const handleAnswer = (stepId: string, value: any) => {
+    if (quizSteps.find(step => step.id === stepId)?.multiSelect) {
+      // Handle multi-select answers
+      setAnswers(prev => {
+        const current = prev[stepId] || [];
+              if (current.includes(value)) {
+        return { ...prev, [stepId]: current.filter((v: string) => v !== value) };
+      } else {
+          return { ...prev, [stepId]: [...current, value] };
+        }
+      });
+    } else {
+      // Handle single-select answers
+      setAnswers(prev => ({ ...prev, [stepId]: value }));
     }
-    const proteinTarget = Math.round(weightKgNum * proteinMultiplier);
-    
-    return { bmr, tdee, calorieTarget, proteinTarget };
-  }, [sex, weightKgNum, heightCmNum, age, activity, goal, days]);
+  };
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('Form submitted!');
+  const nextStep = () => {
+    if (currentStep < quizSteps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const canProceed = () => {
+    const currentStepData = quizSteps[currentStep];
+    if (currentStepData.optional) return true;
+    
+    const answer = answers[currentStepData.id];
+    if (currentStepData.multiSelect) {
+      return Array.isArray(answer) && answer.length > 0;
+    }
+    return answer !== undefined && answer !== '';
+  };
+
+  const progressPercentage = ((currentStep + 1) / quizSteps.length) * 100;
+
+  const generateImage = async (recipeName: string, cuisine: string) => {
+    try {
+      setImageLoading(true);
+      const imagePrompt = `A beautiful, appetizing, professional food photography shot of ${recipeName}. ${cuisine} cuisine style. High-quality, well-lit, on a clean plate with garnishes. Food styling that makes it look delicious and restaurant-quality.`;
+      
+      const response = await fetch('/api/dall-e', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: imagePrompt }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate image');
+      }
+      
+      const data = await response.json();
+      setGeneratedImage(data.imageUrl);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      // Don't show error to user for image generation
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
+  const onSubmit = async () => {
+    if (!canProceed()) return;
+    
+    console.log('Quiz completed!');
     setLoading(true);
     setError('');
     setGeneratedPlan('');
+    setGeneratedImage('');
 
-    const heightText = heightCm ? `${heightCm} cm` : 'not provided';
-    const weightText = weightKg ? `${weightKg} kg` : 'not provided';
+    const prompt = `Hey there! I'm Chef ${Math.random() > 0.5 ? 'Marco' : 'Sarah'}, and I'm excited to create the perfect dinner recipe just for you! 🍳
 
-    const dailyCalories = Math.round(caloriesAndProtein.calorieTarget);
-    const dailyProtein = Math.round(caloriesAndProtein.proteinTarget);
-    
-    // Calculate meal distribution based on number of meals
-    let mealDistribution = '';
-    if (mealsPerDay === 2) {
-      mealDistribution = `- Meal 1: ~${Math.round(dailyCalories * 0.4)} kcal, ~${Math.round(dailyProtein * 0.4)}g protein
-- Meal 2: ~${Math.round(dailyCalories * 0.6)} kcal, ~${Math.round(dailyProtein * 0.6)}g protein`;
-    } else if (mealsPerDay === 3) {
-      mealDistribution = `- Breakfast: ~${Math.round(dailyCalories * 0.25)} kcal, ~${Math.round(dailyProtein * 0.2)}g protein
-- Lunch: ~${Math.round(dailyCalories * 0.35)} kcal, ~${Math.round(dailyProtein * 0.35)}g protein
-- Dinner: ~${Math.round(dailyCalories * 0.4)} kcal, ~${Math.round(dailyProtein * 0.45)}g protein`;
-    } else if (mealsPerDay === 4) {
-      mealDistribution = `- Breakfast: ~${Math.round(dailyCalories * 0.2)} kcal, ~${Math.round(dailyProtein * 0.15)}g protein
-- Lunch: ~${Math.round(dailyCalories * 0.3)} kcal, ~${Math.round(dailyProtein * 0.3)}g protein
-- Dinner: ~${Math.round(dailyCalories * 0.35)} kcal, ~${Math.round(dailyProtein * 0.4)}g protein
-- Snack: ~${Math.round(dailyCalories * 0.15)} kcal, ~${Math.round(dailyProtein * 0.15)}g protein`;
-    } else if (mealsPerDay === 5) {
-      mealDistribution = `- Breakfast: ~${Math.round(dailyCalories * 0.2)} kcal, ~${Math.round(dailyProtein * 0.15)}g protein
-- Lunch: ~${Math.round(dailyCalories * 0.25)} kcal, ~${Math.round(dailyProtein * 0.25)}g protein
-- Dinner: ~${Math.round(dailyCalories * 0.3)} kcal, ~${Math.round(dailyProtein * 0.35)}g protein
-- Snack 1: ~${Math.round(dailyCalories * 0.15)} kcal, ~${Math.round(dailyProtein * 0.15)}g protein
-- Snack 2: ~${Math.round(dailyCalories * 0.1)} kcal, ~${Math.round(dailyProtein * 0.1)}g protein`;
-    }
+Based on your preferences, I'm going to whip up something delicious that fits your lifestyle perfectly. Let me create a personalized dinner experience!
 
-    const prompt = `Create a ${days}-day meal plan with ${mealsPerDay} meals per day.
+ABOUT YOUR DINNER PREFERENCES:
+- Dietary Pattern: ${answers.dietary || 'Not specified'}
+- Allergies/Intolerances: ${Array.isArray(answers.allergies) ? answers.allergies.join(', ') : answers.allergies || 'None'}
+- Dislikes to Avoid: ${answers.dislikes || 'None specified'}
+- Protein Preferences: ${Array.isArray(answers.protein) ? answers.protein.join(', ') : answers.protein || 'Not specified'}
+- Cooking Time Available: ${answers.cooking_time || 'Not specified'} minutes
+- Skill Level: ${answers.skill_level || 'Not specified'}
+- Kitchen Equipment: ${Array.isArray(answers.kitchen_gear) ? answers.kitchen_gear.join(', ') : answers.kitchen_gear || 'Not specified'}
+- Cuisine Preference: ${answers.cuisine || 'No preference'}
+- Budget: ${answers.budget || 'Not specified'}
+- Nutrition Priority: ${answers.nutrition || 'Not specified'}
+- Servings: ${answers.servings || 'Not specified'}
+- Pantry Items Available: ${answers.pantry || 'Not specified'}
 
-CRITICAL DAILY TARGETS TO MEET:
-- Total Calories per day: ${dailyCalories} kcal
-- Total Protein per day: ${dailyProtein}g
+NOW, LET ME CREATE YOUR PERFECT DINNER! ✨
 
-MEAL DISTRIBUTION (each day must match these targets):
-${mealDistribution}
+I'll give you a complete dinner recipe that includes:
+- A mouthwatering recipe name
+- Fresh, affordable ingredients with perfect portions
+- Exact nutritional information
+- Quick prep time estimate
+- My secret chef techniques for maximum flavor
+- Step-by-step cooking instructions tailored to your skill level
 
-CRITICAL: Each day's meals must add up to approximately ${dailyCalories} kcal and ${dailyProtein}g protein. Do not exceed or fall significantly short of these targets.
+FORMAT FOR YOUR DINNER RECIPE:
+"Recipe Name — ingredients with amounts; ~[CALORIES]kcal; ~[PROTEIN]g protein; ~[CARBS]g carbs; ~[FAT]g fat; prep time
 
-MANDATORY MEAL TARGETS (copy these exact numbers):
-${mealsPerDay === 2 ? `
-- Meal 1: ${Math.round(dailyCalories * 0.4)} kcal, ${Math.round(dailyProtein * 0.4)}g protein
-- Meal 2: ${Math.round(dailyCalories * 0.6)} kcal, ${Math.round(dailyProtein * 0.6)}g protein` : 
-mealsPerDay === 3 ? `
-- Breakfast: ${Math.round(dailyCalories * 0.25)} kcal, ${Math.round(dailyProtein * 0.2)}g protein
-- Lunch: ${Math.round(dailyCalories * 0.35)} kcal, ${Math.round(dailyProtein * 0.35)}g protein
-- Dinner: ${Math.round(dailyCalories * 0.4)} kcal, ${Math.round(dailyProtein * 0.45)}g protein` :
-mealsPerDay === 4 ? `
-- Breakfast: ${Math.round(dailyCalories * 0.2)} kcal, ${Math.round(dailyProtein * 0.15)}g protein
-- Lunch: ${Math.round(dailyCalories * 0.3)} kcal, ${Math.round(dailyProtein * 0.3)}g protein
-- Dinner: ${Math.round(dailyCalories * 0.35)} kcal, ${Math.round(dailyProtein * 0.4)}g protein
-- Snack: ${Math.round(dailyCalories * 0.15)} kcal, ${Math.round(dailyProtein * 0.15)}g protein` :
-`
-- Breakfast: ${Math.round(dailyCalories * 0.2)} kcal, ${Math.round(dailyProtein * 0.15)}g protein
-- Lunch: ${Math.round(dailyCalories * 0.25)} kcal, ${Math.round(dailyProtein * 0.25)}g protein
-- Dinner: ${Math.round(dailyCalories * 0.3)} kcal, ${Math.round(dailyProtein * 0.35)}g protein
-- Snack 1: ${Math.round(dailyCalories * 0.15)} kcal, ${Math.round(dailyProtein * 0.15)}g protein
-- Snack 2: ${Math.round(dailyCalories * 0.1)} kcal, ${Math.round(dailyProtein * 0.1)}g protein`}
+| Recipe: 
 
-CRITICAL: Use these EXACT numbers for each meal. Do not use any other numbers.
+1) First step
+2) Second step  
+3) Third step..."
 
-Inputs:
-- Age: ${age}
-- Sex: ${sex}
-- Height: ${heightText}
-- Weight: ${weightText}
-- Activity: ${activity}
-- Goal: ${goal}
-- Preferences/Restrictions: ${dietPrefs || 'none specified'}
+IMPORTANT CHEF NOTES:
+- Every ingredient gets a specific amount - no guessing!
+- I'll use both familiar measurements (cups, tbsp) and grams for precision
+- The recipe will be completely unique and tailored to your preferences
+- Cooking times will be realistic for your available time
+- I'll choose the best cooking method for your equipment and skill level
+- Everything will fit your dietary restrictions and preferences
 
-Output requirements:
-- Headings: Day 1:, Day 2:, ..., Day ${days}:
-- Under each Day, list meals as bullets starting with a dash (-)
-- Each bullet should include: meal name — key ingredients with PORTION SIZES (specify both pieces/units AND grams where applicable); ~[EXACT TARGET KCAL]kcal; ~[EXACT TARGET PROTEIN]g protein; quick prep (short) | Recipe: 1) step one, 2) step two, 3) step three
-- CRITICAL: After &quot;| Recipe:&quot; you MUST write actual cooking steps like &quot;1) Boil water, 2) Add oats, 3) Cook 5min, 4) Add toppings&quot;
-- CRITICAL: Steps must be numbered (1), 2), 3), etc.)
-- CRITICAL: Each step should be a single action (no long combined sentences)
-- CRITICAL: Include time cues whenever cooking (e.g., &quot;cook 6min&quot;, &quot;boil 5min&quot;, &quot;rest 5min&quot;)
-- CRITICAL: Avoid vague directions like "cook until done" - use specific times
-- CRITICAL: Do NOT write "| Recipe" alone - you MUST include the cooking steps after the colon
-- For portion sizes, use format like: &quot;2 medium eggs (100g)&quot;, &quot;1 cup cooked rice (185g)&quot;, &quot;3 oz chicken breast (85g)&quot;, &quot;1 medium apple (182g)&quot;, &quot;1 tbsp olive oil (14g)&quot;, &quot;1/2 cup diced tomatoes (90g)&quot;, &quot;2 cloves garlic (6g)&quot;, &quot;1/4 cup chopped onion (40g)&quot;, &quot;1 tsp salt (6g)&quot;, &quot;1/2 tsp black pepper (1g)&quot;, &quot;1 cup spinach (30g)&quot;, &quot;1/2 avocado (68g)&quot;
-- CRITICAL: Always list imperial units first (cups, tbsp, tsp, oz, medium/large/small), then add grams in parentheses
-- CRITICAL: EVERY SINGLE ingredient must have a specific amount/measurement. Never list ingredients without amounts.
-- Include amounts for spices, oils, vegetables, proteins, grains, fruits - everything.
-- CRITICAL: EVERY meal must include a detailed recipe with step-by-step cooking instructions after the | Recipe: separator.
-- CRITICAL: Do NOT output just "| Recipe" - you MUST include the actual cooking instructions after the colon.
-- CRITICAL: WRONG: &quot;| Recipe&quot; - CORRECT: &quot;| Recipe: 1) Boil water, 2) Add oats, 3) Cook 5min&quot;
-- CRITICAL: Ensure each meal's kcal and protein match the distribution targets above.
-- CRITICAL: Use the exact calorie and protein targets from the distribution above. Do not use generic examples.
-- CRITICAL: The calorie and protein numbers you output MUST match the distribution targets exactly. Do not output lower numbers.
-- CRITICAL: If you output numbers like ~250kcal or ~200kcal instead of the target numbers, you are WRONG. Use the exact target numbers.
-- CRITICAL: Replace [EXACT TARGET KCAL] and [EXACT TARGET PROTEIN] with the actual numbers from MANDATORY MEAL TARGETS above.
-- CRITICAL: You MUST write cooking instructions after &quot;| Recipe:&quot; - never leave it empty or just &quot;| Recipe&quot;
-- EXAMPLES (using calculated targets for 3 meals):
-      * &quot;Breakfast — 1 cup oats (80g), 1 cup blueberries (148g), 1 tbsp honey (21g), 1 cup almond milk (240ml); ~${Math.round(dailyCalories * 0.25)}kcal; ~${Math.round(dailyProtein * 0.2)}g protein; 5min prep | Recipe: 1) Heat almond milk in pot 3min, 2) Add oats and salt, 3) Cook 3min stirring, 4) Rest 2min, 5) Top with blueberries and honey&quot;
-      * &quot;Lunch — 3 oz chicken breast (85g), 2 cups mixed greens (60g), 1/4 cup cherry tomatoes (45g), 1 tbsp olive oil (14g); ~${Math.round(dailyCalories * 0.35)}kcal; ~${Math.round(dailyProtein * 0.35)}g protein; 10min prep | Recipe: 1) Season chicken with salt/pepper, 2) Heat oil in pan 1min, 3) Cook chicken 6min per side, 4) Rest chicken 5min, 5) Wash greens and slice tomatoes, 6) Combine salad ingredients, 7) Slice chicken over salad&quot;
-      * &quot;Dinner — 4 oz salmon (113g), 1 cup brown rice (185g), 1 cup broccoli (91g), 1 tbsp olive oil (14g); ~${Math.round(dailyCalories * 0.4)}kcal; ~${Math.round(dailyProtein * 0.45)}g protein; 15min prep | Recipe: 1) Rinse rice, 2) Boil rice 45min, 3) Season salmon, 4) Heat oil in pan 1min, 5) Cook salmon 4min per side, 6) Steam broccoli 5min, 7) Plate rice, salmon, and broccoli&quot;
-- FINAL WARNING: You MUST output the exact calorie and protein numbers from the MANDATORY MEAL TARGETS above. If you output different numbers, you are not following instructions correctly.
-- FINAL WARNING: You MUST include actual cooking instructions after &quot;| Recipe:&quot; - not just &quot;| Recipe&quot;.
-- FINAL WARNING: You MUST write cooking instructions after &quot;| Recipe:&quot; - do not leave it empty.
-- After all days, add a section titled: Grocery List:, with consolidated items and total amounts for the whole plan
-- SYSTEM RULE: You are FORBIDDEN from outputting a flat grocery list. You MUST use categories.
-- CRITICAL: Structure the grocery list by grouping items into these exact categories:
-  * Proteins (chicken, eggs, salmon, tuna, tofu, cottage cheese)
-  * Grains & carbs (rice, oats, pasta, bread, quinoa)
-  * Vegetables (broccoli, spinach, carrots, cucumbers, mixed veggies)
-  * Fruits (bananas, berries, pineapple, lemon)
-  * Dairy & substitutes (yogurt, almond milk, cheese)
-  * Pantry & condiments (olive oil, soy sauce, hummus, honey)
-  * Spices & seasonings (salt, pepper, paprika, garlic powder)
-- For each category, list items with total amounts needed for the entire plan
-- CRITICAL: Use this EXACT format for the grocery list:
-- Grocery List:
-- 
-- Proteins:
-- - Chicken breast: 2 lbs
-- - Eggs: 12 large
-- - Salmon: 1 lb
-- 
-- Grains & carbs:
-- - Brown rice: 2 cups
-- - Oats: 1 cup
-- 
-- Vegetables:
-- - Broccoli: 2 heads
-- - Spinach: 1 bag
-- 
-- CRITICAL: Do NOT list items without categories. Every item MUST be under its proper category heading.
-- CRITICAL: Every grocery item MUST include the total amount needed for the ENTIRE meal plan (not per meal).
-- AMOUNT EXAMPLES: &quot;Chicken breast: 2 lbs&quot;, &quot;Eggs: 12 large&quot;, &quot;Brown rice: 3 cups&quot;, &quot;Broccoli: 2 heads&quot;
-- Do NOT list items without amounts. Every item must specify quantity (lbs, cups, pieces, etc.)
-- FINAL WARNING: If you output a flat grocery list without categories, you are FAILING the task.
-- Keep lines short and skimmable; no emojis, no hashtags`;
+CRITICAL RECIPE REQUIREMENTS:
+- The recipe must be 100% unique and detailed - never generic or vague
+- Every cooking step must directly reference specific ingredients that are actually listed
+- NO vague steps like "prepare ingredients," "season to taste," or "cook until done"
+- Each step should be specific and actionable with exact times and techniques
+- If an ingredient is listed, it must be used in the cooking steps
+- If a cooking step mentions an ingredient, it must be in the ingredient list
+- Maintain the exact format: "Recipe Name — ingredients with amounts; ~[CALORIES]kcal; ~[PROTEIN]g protein; ~[CARBS]g carbs; ~[FAT]g fat; prep time
+
+| Recipe: 
+
+1) First step
+2) Second step  
+3) Third step..."
+
+
+
+Ready to get cooking? Let's make some magic happen! 🎉`;
 
     try {
       console.log('Sending prompt to API...');
@@ -233,13 +368,13 @@ Output requirements:
       console.log('Prompt sent successfully');
     } catch (e) {
       console.error('Error generating plan:', e);
-      setError('Failed to generate plan. Please try again.');
+      setError('Failed to generate recipe. Please try again.');
       setLoading(false);
     }
   };
 
-  const calorieText = Number.isFinite(caloriesAndProtein.calorieTarget) ? `${caloriesAndProtein.calorieTarget} kcal` : '-- kcal';
-  const proteinText = Number.isFinite(caloriesAndProtein.proteinTarget) ? `${caloriesAndProtein.proteinTarget} g protein` : '-- g protein';
+  const currentStepData = quizSteps[currentStep];
+  const isLastStep = currentStep === quizSteps.length - 1;
 
   return (
     <div style={{ 
@@ -407,7 +542,39 @@ Output requirements:
       </div>
 
       {/* Main Content */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
+        {/* Progress Bar */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '20px',
+          padding: '20px',
+          marginBottom: '30px',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h3 style={{ color: 'white', margin: '0 0 10px 0', fontSize: '1.1rem' }}>
+              Step {currentStep + 1} of {quizSteps.length}
+            </h3>
+            <div style={{
+              width: '100%',
+              height: '8px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '4px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                width: `${progressPercentage}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #fbbf24, #f59e0b)',
+                borderRadius: '4px',
+                transition: 'width 0.5s ease'
+              }}></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quiz Step */}
         <div style={{
           background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
           borderRadius: '20px',
@@ -415,338 +582,248 @@ Output requirements:
           padding: '40px',
           marginBottom: '40px',
           border: '1px solid rgba(255, 255, 255, 0.2)',
-          backdropFilter: 'blur(10px)'
+          backdropFilter: 'blur(10px)',
+          textAlign: 'center'
         }}>
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            {/* NutriGuide Icon */}
-            <div style={{
-              marginBottom: '2rem',
-              display: 'flex',
-              justifyContent: 'center'
+          {/* Step Header */}
+          <div style={{ marginBottom: '40px' }}>
+            <h2 style={{ 
+              fontSize: '2.5rem', 
+              fontWeight: '700', 
+              color: '#1a202c', 
+              marginBottom: '1rem',
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
             }}>
-              <img 
-                src="/favicon.png" 
-                alt="NutriGuide Icon" 
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '20px',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-                  border: '3px solid rgba(255, 255, 255, 0.2)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer',
-                  transform: 'scale(1)',
-                  filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4))'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.1)';
-                  e.currentTarget.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.4)';
-                  e.currentTarget.style.border = '3px solid rgba(255, 255, 255, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.3)';
-                  e.currentTarget.style.border = '3px solid rgba(255, 255, 255, 0.2)';
-                }}
-              />
-            </div>
-            
-            <h2 style={{ fontSize: '2.5rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>
-              Your Personalized Meal Plan
+              {currentStepData.title}
             </h2>
-            <p style={{ fontSize: '1.1rem', color: '#64748b', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
-              Complete the form below to get your custom meal plan with exact calorie and protein targets.
+            <p style={{ 
+              fontSize: '1.2rem', 
+              color: '#64748b', 
+              maxWidth: '500px', 
+              margin: '0 auto', 
+              lineHeight: '1.6' 
+            }}>
+              {currentStepData.subtitle}
             </p>
           </div>
 
-          <form onSubmit={onSubmit}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '24px',
-              marginBottom: '32px'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Age</label>
-                <input 
-                  type="number" 
-                  value={age} 
-                  min={14} 
-                  max={100} 
-                  onChange={(e) => setAge(parseInt(e.target.value || '0', 10))} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sex</label>
-                <select 
-                  value={sex} 
-                  onChange={(e) => setSex(e.target.value as 'male' | 'female')} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Height (cm)</label>
-                <input 
-                  type="number" 
-                  value={heightCm} 
-                  min={120} 
-                  max={220} 
-                  placeholder="e.g., 175" 
-                  onChange={(e) => setHeightCm(e.target.value)} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Weight (kg)</label>
-                <input 
-                  type="number" 
-                  value={weightKg} 
-                  min={35} 
-                  max={250} 
-                  placeholder="e.g., 70" 
-                  onChange={(e) => setWeightKg(e.target.value)} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Activity Level</label>
-                <select 
-                  value={activity} 
-                  onChange={(e) => setActivity(e.target.value)} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                >
-                  <option value="sedentary">Sedentary (office job)</option>
-                  <option value="light">Light (1-3x/week)</option>
-                  <option value="moderate">Moderate (3-5x/week)</option>
-                  <option value="active">Active (6-7x/week)</option>
-                  <option value="very_active">Very active (physical job + training)</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Goal</label>
-                <select 
-                  value={goal} 
-                  onChange={(e) => setGoal(e.target.value)} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                >
-                  <option value="lose">Lose fat</option>
-                  <option value="maintain">Maintain</option>
-                  <option value="gain">Gain muscle</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Meals per day</label>
-                <select 
-                  value={mealsPerDay} 
-                  onChange={(e) => setMealsPerDay(parseInt(e.target.value, 10))} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                >
-                  <option value={2}>2</option>
-                  <option value={3}>3</option>
-                  <option value={4}>4</option>
-                  <option value={5}>5</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days</label>
-                <select 
-                  value={days} 
-                  onChange={(e) => setDays(parseInt(e.target.value, 10))} 
-                  disabled={loading}
-                  style={{
-                    padding: '16px',
-                    border: '2px solid #e5e7eb',
-                    borderRadius: '12px',
-                    fontSize: '1rem',
-                    background: '#f9fafb',
-                    color: '#1f2937'
-                  }}
-                >
-                  <option value={3}>3</option>
-                  <option value={5}>5</option>
-                  <option value={7}>7</option>
-                  <option value={10}>10</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '32px' }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Food preferences or restrictions</label>
-              <textarea 
-                rows={3} 
-                placeholder="e.g., halal; prefer Mediterranean flavors; dairy-free; avoid shellfish; budget-friendly" 
-                value={dietPrefs} 
-                onChange={(e) => setDietPrefs(e.target.value)} 
-                disabled={loading}
-                style={{
-                  padding: '16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
-                  fontSize: '1rem',
-                  background: '#f9fafb',
-                  color: '#1f2937',
-                  resize: 'vertical',
-                  minHeight: '100px'
-                }}
-              />
-            </div>
-
-            <div style={{
-              background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
-              borderRadius: '16px',
-              padding: '32px',
-              marginBottom: '32px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              boxShadow: '0 15px 35px rgba(30, 27, 75, 0.3)'
-            }}>
-              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>Your Daily Targets</h3>
-                <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.95rem' }}>These will be used for each day of your plan</p>
-              </div>
+          {/* Step Content */}
+          <div style={{ marginBottom: '40px' }}>
+            {currentStepData.options ? (
+              // Multiple choice options
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '24px'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '20px',
+                maxWidth: '600px',
+                margin: '0 auto'
               }}>
-                <div style={{
-                  textAlign: 'center',
-                  padding: '20px',
-                  background: 'white',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                  border: '1px solid #e2e8f0'
-                }}>
-                  <span style={{
-                    display: 'block',
-                    fontSize: '2rem',
-                    fontWeight: '700',
-                    color: '#667eea',
-                    marginBottom: '0.5rem'
-                  }}>{calorieText}</span>
-                  <span style={{
-                    fontSize: '0.9rem',
-                    color: '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>Daily Calories</span>
-                </div>
-                <div style={{
-                  textAlign: 'center',
-                  padding: '20px',
-                  background: 'white',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-                  border: '1px solid #e2e8f0'
-                }}>
-                  <span style={{
-                    display: 'block',
-                    fontSize: '2rem',
-                    fontWeight: '700',
-                    color: '#667eea',
-                    marginBottom: '0.5rem'
-                  }}>{proteinText}</span>
-                  <span style={{
-                    fontSize: '0.9rem',
-                    color: '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>Daily Protein</span>
+                {currentStepData.options.map((option) => {
+                  const isSelected = currentStepData.multiSelect 
+                    ? (answers[currentStepData.id] || []).includes(option.value)
+                    : answers[currentStepData.id] === option.value;
+                  
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => handleAnswer(currentStepData.id, option.value)}
+                      style={{
+                        padding: '24px',
+                        border: `3px solid ${isSelected ? '#fbbf24' : '#e5e7eb'}`,
+                        borderRadius: '16px',
+                        background: isSelected ? '#fef3c7' : 'white',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        textAlign: 'left',
+                        width: '100%',
+                        boxShadow: isSelected ? '0 10px 25px rgba(251, 191, 36, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.05)',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = '#fbbf24';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = '#e5e7eb';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }
+                      }}
+                    >
+                      {currentStepData.multiSelect && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          border: `2px solid ${isSelected ? '#fbbf24' : '#e5e7eb'}`,
+                          background: isSelected ? '#fbbf24' : 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          {isSelected && (
+                            <div style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: 'white'
+                            }}></div>
+                          )}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '2rem', marginBottom: '12px' }}>{option.icon}</div>
+                      <div style={{ fontWeight: '600', color: '#1a202c', marginBottom: '8px', fontSize: '1.1rem' }}>
+                        {option.label}
+                      </div>
+                      <div style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                        {option.description}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : currentStepData.type === 'textarea' ? (
+              // Textarea input
+              <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+                <textarea
+                  value={answers[currentStepData.id] || ''}
+                  onChange={(e) => handleAnswer(currentStepData.id, e.target.value)}
+                  placeholder={currentStepData.placeholder}
+                  rows={4}
+                  style={{
+                    width: '100%',
+                    padding: '20px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '16px',
+                    fontSize: '1rem',
+                    background: '#f9fafb',
+                    color: '#1f2937',
+                    resize: 'vertical',
+                    minHeight: '120px',
+                    fontFamily: 'inherit'
+                  }}
+                />
+                {currentStepData.optional && (
+                  <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '8px' }}>
+                    This is optional - you can skip if you prefer
+                  </p>
+                )}
+              </div>
+            ) : (
+              // Number input
+              <div style={{ maxWidth: '300px', margin: '0 auto' }}>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="number"
+                    value={answers[currentStepData.id] || ''}
+                    onChange={(e) => handleAnswer(currentStepData.id, parseInt(e.target.value) || '')}
+                    placeholder={currentStepData.placeholder}
+                    min={currentStepData.min}
+                    max={currentStepData.max}
+                    style={{
+                      width: '100%',
+                      padding: '24px 20px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '16px',
+                      fontSize: '1.5rem',
+                      background: '#f9fafb',
+                      color: '#1f2937',
+                      textAlign: 'center',
+                      fontWeight: '600'
+                    }}
+                  />
+                  {currentStepData.unit && (
+                    <div style={{
+                      position: 'absolute',
+                      right: '20px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#64748b',
+                      fontSize: '1.2rem',
+                      fontWeight: '500'
+                    }}>
+                      {currentStepData.unit}
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
+          </div>
 
-            <button 
-              type="submit" 
-              disabled={loading}
-              onClick={() => console.log('Button clicked!')}
+          {/* Navigation Buttons */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            maxWidth: '400px',
+            margin: '0 auto'
+          }}>
+            <button
+              onClick={prevStep}
+              disabled={currentStep === 0}
               style={{
-                width: '100%',
-                padding: '18px 32px',
-                              background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              boxShadow: '0 15px 35px rgba(251, 191, 36, 0.4)',
-              transition: 'all 0.3s ease'
+                padding: '16px 24px',
+                border: '2px solid #e5e7eb',
+                background: currentStep === 0 ? '#f3f4f6' : 'white',
+                color: currentStep === 0 ? '#9ca3af' : '#374151',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                opacity: currentStep === 0 ? 0.5 : 1
               }}
             >
-              {loading ? 'Generating your plan...' : 'Generate My Meal Plan →'}
+              ← Previous
             </button>
-          </form>
+
+            {isLastStep ? (
+              <button
+                onClick={onSubmit}
+                disabled={!canProceed() || loading}
+                style={{
+                  padding: '16px 32px',
+                  background: canProceed() && !loading ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : '#e5e7eb',
+                  color: canProceed() && !loading ? 'white' : '#9ca3af',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: canProceed() && !loading ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.3s ease',
+                  boxShadow: canProceed() && !loading ? '0 10px 25px rgba(251, 191, 36, 0.4)' : 'none'
+                }}
+              >
+                {loading ? 'Creating Your Recipe...' : 'Get My Dinner Recipe! 🎉'}
+              </button>
+            ) : (
+              <button
+                onClick={nextStep}
+                disabled={!canProceed()}
+                style={{
+                  padding: '16px 32px',
+                  background: canProceed() ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#e5e7eb',
+                  color: canProceed() ? 'white' : '#9ca3af',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: canProceed() ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.3s ease',
+                  boxShadow: canProceed() ? '0 10px 25px rgba(102, 126, 234, 0.4)' : 'none'
+                }}
+              >
+                Next →
+              </button>
+            )}
+          </div>
         </div>
 
         {loading && (
@@ -767,7 +844,7 @@ Output requirements:
               animation: 'spin 1s linear infinite',
               margin: '0 auto 20px'
             }}></div>
-            <p style={{ fontSize: '1.1rem', color: '#64748b', margin: 0 }}>Creating your personalized meal plan...</p>
+            <p style={{ fontSize: '1.1rem', color: '#64748b', margin: 0 }}>Creating your personalized dinner recipe...</p>
           </div>
         )}
 
@@ -790,10 +867,86 @@ Output requirements:
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden'
           }}>
-            <MealPlan plan={generatedPlan} summary={`Per day: ~${calorieText}, ~${proteinText}`} />
+            {/* Recipe Image Section */}
+            {(generatedImage || imageLoading) && (
+              <div style={{
+                padding: '30px',
+                borderBottom: '1px solid #e5e7eb',
+                textAlign: 'center',
+                background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+              }}>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: '#1a202c',
+                  marginBottom: '20px'
+                }}>
+                  🍽️ Your Recipe Visual
+                </h3>
+                {imageLoading ? (
+                  <div style={{
+                    padding: '40px',
+                    background: '#f9fafb',
+                    borderRadius: '16px',
+                    border: '2px dashed #d1d5db'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      border: '4px solid #e2e8f0',
+                      borderTop: '4px solid #667eea',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto 16px'
+                    }}></div>
+                    <p style={{ color: '#64748b', margin: 0, fontSize: '1rem' }}>
+                      Creating your recipe image...
+                    </p>
+                  </div>
+                ) : generatedImage ? (
+                  <div style={{
+                    maxWidth: '500px',
+                    margin: '0 auto'
+                  }}>
+                    <img
+                      src={generatedImage}
+                      alt="Generated recipe image"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '16px',
+                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                        border: '3px solid white'
+                      }}
+                    />
+                    <p style={{
+                      color: '#64748b',
+                      fontSize: '0.9rem',
+                      marginTop: '12px',
+                      fontStyle: 'italic'
+                    }}>
+                      AI-generated visualization of your recipe
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            )}
+            
+            <MealPlan plan={generatedPlan} summary="Your personalized dinner recipe from Chef AI" />
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

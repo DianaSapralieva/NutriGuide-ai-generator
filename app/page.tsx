@@ -63,7 +63,7 @@ export default function Home() {
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
           }}>
-            Craft meal plans you&apos;ll love
+            Don&apos;t know what to cook tonight?
           </h1>
           <p style={{
             fontSize: '1.25rem',
@@ -74,7 +74,7 @@ export default function Home() {
             marginLeft: 'auto',
             marginRight: 'auto'
           }}>
-            Create personalized meal plans tailored to your unique dietary restrictions in just minutes
+            Let our AI chef create the perfect dinner recipe just for you in minutes
           </p>
           <div style={{
             display: 'flex',
@@ -93,13 +93,13 @@ export default function Home() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
-              }}>400+</span>
+              }}>🍳</span>
               <span style={{
                 fontSize: '0.9rem',
                 opacity: '0.8',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
-              }}>Protein-rich recipes</span>
+              }}>AI Chef</span>
             </div>
             <div style={{ textAlign: 'center', padding: '1rem' }}>
               <span style={{
@@ -111,13 +111,13 @@ export default function Home() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
-              }}>10x</span>
+              }}>⚡</span>
               <span style={{
                 fontSize: '0.9rem',
                 opacity: '0.8',
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
-              }}>Faster planning</span>
+              }}>Quick Recipes</span>
             </div>
             <div style={{ textAlign: 'center', padding: '1rem' }}>
               <span style={{
@@ -129,7 +129,7 @@ export default function Home() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
-              }}>100%</span>
+              }}>🎯</span>
               <span style={{
                 fontSize: '0.9rem',
                 opacity: '0.8',
@@ -156,7 +156,7 @@ export default function Home() {
                 transition: 'all 0.3s ease'
               }}
             >
-              Let&apos;s Start →
+              Get My Dinner Recipe! 🍽️
             </button>
           </Link>
         </div>
@@ -618,7 +618,7 @@ export default function Home() {
             fontWeight: '700',
             color: '#1a202c',
             marginBottom: '3rem'
-          }}>Why choose our meal planner?</h2>
+          }}>Why choose our AI Chef?</h2>
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -633,10 +633,10 @@ export default function Home() {
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
               transition: 'transform 0.3s ease, box-shadow 0.3s ease'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚡</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>Lightning Fast</h3>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👨‍🍳</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>Personal Chef Experience</h3>
               <p style={{ color: '#64748b', lineHeight: '1.6', fontSize: '1rem' }}>
-                Generate complete meal plans in under 2 minutes
+                Get personalized dinner suggestions from an AI chef who understands your preferences
               </p>
             </div>
             <div style={{
@@ -648,10 +648,10 @@ export default function Home() {
               boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
               transition: 'transform 0.3s ease, box-shadow 0.3s ease'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>Precise Nutrition</h3>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚡</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>Quick & Easy</h3>
               <p style={{ color: '#64748b', lineHeight: '1.6', fontSize: '1rem' }}>
-                Exact calorie and protein targets for your goals
+                Recipes that fit your available time, skill level, and kitchen equipment
               </p>
             </div>
             <div style={{
@@ -666,10 +666,145 @@ export default function Home() {
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌱</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>All Diets Welcome</h3>
               <p style={{ color: '#64748b', lineHeight: '1.6', fontSize: '1rem' }}>
-                Vegan, keto, paleo, gluten-free, and more
+                Vegan, vegetarian, halal, kosher, gluten-free, and allergy-friendly options
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* How It Works Section */}
+      <div style={{ padding: '80px 20px', background: 'white' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 style={{
+            textAlign: 'center',
+            fontSize: '2.5rem',
+            fontWeight: '700',
+            color: '#1a202c',
+            marginBottom: '3rem'
+          }}>How it works</h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '3rem'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1.5rem',
+                fontSize: '2rem',
+                color: 'white',
+                fontWeight: 'bold'
+              }}>
+                1
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>
+                Tell us about yourself
+              </h3>
+              <p style={{ color: '#64748b', lineHeight: '1.6', fontSize: '1rem' }}>
+                Answer a few quick questions about your dietary preferences, cooking skills, available time, and kitchen equipment
+              </p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1.5rem',
+                fontSize: '2rem',
+                color: 'white',
+                fontWeight: 'bold'
+              }}>
+                2
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>
+                AI Chef creates your recipe
+              </h3>
+              <p style={{ color: '#64748b', lineHeight: '1.6', fontSize: '1rem' }}>
+                Our AI chef analyzes your preferences and creates a personalized dinner recipe just for you
+              </p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1.5rem',
+                fontSize: '2rem',
+                color: 'white',
+                fontWeight: 'bold'
+              }}>
+                3
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1a202c', marginBottom: '1rem' }}>
+                Cook and enjoy!
+              </h3>
+              <p style={{ color: '#64748b', lineHeight: '1.6', fontSize: '1rem' }}>
+                Follow the step-by-step instructions to create a delicious dinner that perfectly matches your preferences
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div style={{ 
+        padding: '80px 20px', 
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
+        textAlign: 'center',
+        color: 'white'
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h2 style={{
+            fontSize: '2.5rem',
+            fontWeight: '700',
+            marginBottom: '1.5rem',
+            lineHeight: '1.2'
+          }}>
+            Ready to solve your dinner dilemma?
+          </h2>
+          <p style={{
+            fontSize: '1.25rem',
+            marginBottom: '3rem',
+            opacity: '0.9',
+            lineHeight: '1.6'
+          }}>
+            Join thousands of people who never wonder "what should I cook tonight?" again
+          </p>
+          <Link href="/meal-planner">
+            <button 
+              style={{
+                background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50px',
+                padding: '18px 40px',
+                fontSize: '1.2rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                boxShadow: '0 20px 40px rgba(251, 191, 36, 0.4)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Start Your Dinner Quiz! 🍽️
+            </button>
+          </Link>
         </div>
       </div>
     </main>
